@@ -191,15 +191,17 @@ async function loadInvestorOrders() {
     const div = document.getElementById('investorOrders');
     if (!div) return;
     div.innerHTML = 'جاري التحميل...';
-    const prodSnap = await db.collection('products').where('investorId','==',currentUser.uid).get();
-    const ids = new Set(); prodSnap.forEach(d=>ids.add(d.id));
-    if (ids.size===0) { div.innerHTML='<p>لا طلبات.</p>'; return; }
-    const snap = await db.collection('orders').orderBy('createdAt','desc').limit(30).get();
+    // بفضل investorIds يمكننا جلب الطلبات مباشرة
+    const snap = await db.collection('orders').where('investorIds', 'array-contains', currentUser.uid).orderBy('createdAt','desc').limit(30).get();
+    if (snap.empty) { div.innerHTML = '<p>لا طلبات.</p>'; return; }
     let html = '';
     snap.forEach(doc => {
         const order = doc.data();
-        const items = order.items.filter(i=>ids.has(i.productId));
-        if (items.length) html += `<div class="order-item"><span>#${doc.id.slice(0,6)}</span><span>${items.map(i=>i.title).join(', ')}</span><span>${order.total} ريال</span><span>${order.status||'جديد'}</span></div>`;
+        // عرض كل العناصر لأن الطلب يحتوي منتجات هذا المستثمر بالضبط
+        const investorInfo = order.investorsDetails?.find(inv => inv.investorId === currentUser.uid);
+        const itemsText = investorInfo ? investorInfo.items.map(i=>`${i.title} (${i.quantity})`).join(', ') : '';
+        const subtotal = investorInfo ? investorInfo.subtotal : 0;
+        html += `<div class="order-item"><span>#${doc.id.slice(0,6)}</span><span>${itemsText}</span><span>${subtotal} ريال</span><span>${order.status||'جديد'}</span></div>`;
     });
     div.innerHTML = html || '<p>لا طلبات.</p>';
 }
@@ -259,7 +261,6 @@ async function initiateCheckout() {
     const cartSnapshot = await db.collection('users').doc(currentUser.uid).collection('cart').get();
     if (cartSnapshot.empty) return alert('السلة فارغة');
 
-    // تنظيم حسب المستثمر
     const investorMap = new Map();
     for (const doc of cartSnapshot.docs) {
         const item = doc.data();
@@ -286,7 +287,6 @@ async function initiateCheckout() {
         cartSnapshot
     };
 
-    // عرض خيارات الدفع
     let modalHtml = `<p><strong>العنوان:</strong> ${address}</p>`;
     currentCheckoutData.investorMap.forEach((inv, index) => {
         modalHtml += `<div class="payment-method">
@@ -302,7 +302,6 @@ async function initiateCheckout() {
     document.getElementById('paymentDetails').innerHTML = modalHtml;
     document.getElementById('paymentModal').classList.remove('hidden');
 
-    // إظهار/إخفاء الباركود
     currentCheckoutData.investorMap.forEach((_, index) => {
         const radios = document.getElementsByName(`pay_${index}`);
         radios.forEach(r => r.addEventListener('change', () => {
@@ -349,6 +348,7 @@ document.getElementById('confirmPaymentBtn').addEventListener('click', async () 
         address: currentCheckoutData.address,
         items: orderItems,
         total: total,
+        investorIds: currentCheckoutData.investorMap.map(inv => inv.id), // الحقل المهم للقواعد
         investorsDetails: currentCheckoutData.investorMap.map((inv, idx) => ({
             investorId: inv.id,
             email: inv.email,
@@ -382,7 +382,6 @@ document.getElementById('confirmPaymentBtn').addEventListener('click', async () 
 
         const mailtoLink = `mailto:${investorEmails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-        // تخزين الرابط لاستخدامه لاحقاً
         document.getElementById('openMailBtn').onclick = () => {
             window.open(mailtoLink, '_blank');
             closeEmailModal();

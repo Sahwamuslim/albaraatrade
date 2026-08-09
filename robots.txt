@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://Sahwamuslim.github.io/albaraatrade/sitemap.xml

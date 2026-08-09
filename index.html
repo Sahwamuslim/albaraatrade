@@ -3,13 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البراء للتجارة المحلية</title>
+    <title>البراء للتجارة المحلية – منصة تجارة إلكترونية للمستثمرين والعملاء</title>
+    <meta name="description" content="منصة البراء للتجارة المحلية تجمع بين المستثمرين والزبائن، يمكنك نشر عروضك، تصفح المنتجات، وإتمام الشراء بسهولة مع خيار الدفع عند الاستلام أو عبر شام كاش.">
+    <meta name="keywords" content="تجارة, محلية, مستثمر, زبون, شام كاش, سوريا, منتجات, شراء, بيع">
+    <meta name="author" content="البراء للتجارة المحلية">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph (فيسبوك، واتساب، تلغرام) -->
+    <meta property="og:title" content="البراء للتجارة المحلية">
+    <meta property="og:description" content="منصة تجارة إلكترونية محلية، تعرض منتجات المستثمرين وتتيح للزبائن الطلب بسهولة.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://YOUR_USERNAME.github.io/albaraa-trade">
+    <meta property="og:image" content="https://YOUR_USERNAME.github.io/albaraa-trade/og-image.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="البراء للتجارة المحلية">
+    <meta name="twitter:description" content="منصة تجارة إلكترونية محلية، تعرض منتجات المستثمرين وتتيح للزبائن الطلب بسهولة.">
+    <meta name="twitter:image" content="https://YOUR_USERNAME.github.io/albaraa-trade/og-image.jpg">
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="firebase.js"></script>
     <link rel="stylesheet" href="style.css">
+
+    <!-- بيانات منظمة Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "البراء للتجارة المحلية",
+      "url": "https://YOUR_USERNAME.github.io/albaraa-trade",
+      "description": "منصة تجارة إلكترونية محلية تجمع بين المستثمرين والزبائن.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "support@albaraa-trade.com"
+      }
+    }
+    </script>
 </head>
 <body>
     <nav id="mainNav">
@@ -69,7 +103,7 @@
             </div>
         </div>
 
-        <!-- نافذة إرسال البريد (بعد تأكيد الطلب) -->
+        <!-- نافذة البريد -->
         <div id="emailModal" class="modal hidden">
             <div class="modal-content">
                 <span class="close" onclick="closeEmailModal()">&times;</span>

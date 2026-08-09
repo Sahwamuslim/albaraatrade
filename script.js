@@ -3,16 +3,37 @@ let currentUser = null;
 let userRole = null;
 let currentCheckoutData = null;
 
-// ========== التنقل ==========
+// ========== التحقق من وجود مستثمر وإخفاء الخيار ==========
+async function checkInvestorExists() {
+    const select = document.getElementById('regRole');
+    if (!select) return;
+    const snapshot = await db.collection('users').where('role', '==', 'investor').limit(1).get();
+    if (!snapshot.empty) {
+        // يوجد مستثمر -> أخفي الخيار وأجعله زبون فقط
+        select.innerHTML = '<option value="customer">زبون</option>';
+        select.disabled = false; // أو اجعله readonly
+    } else {
+        // لا يوجد مستثمر -> أظهر الخيارين
+        select.innerHTML = `
+            <option value="customer">زبون</option>
+            <option value="investor">مستثمر</option>
+        `;
+    }
+}
+
+// ========== التنقل بين الصفحات ==========
 function navigateTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
     const pageMap = { home: 'homePage', login: 'loginPage', register: 'registerPage', dashboard: 'dashboardPage' };
     if (pageMap[page]) document.getElementById(pageMap[page]).classList.remove('hidden');
     if (page === 'home') loadPublicPosts();
     if (page === 'dashboard' && currentUser) loadDashboard();
+    if (page === 'register') {
+        checkInvestorExists(); // تحديث القائمة عند فتح صفحة التسجيل
+    }
 }
 
-// ========== المصادقة ==========
+// ========== مراقبة حالة المصادقة ==========
 auth.onAuthStateChanged(async (user) => {
     const loginLink = document.getElementById('loginLink');
     const registerLink = document.getElementById('registerLink');
@@ -53,14 +74,25 @@ async function loadPublicPosts() {
     container.innerHTML = html;
 }
 
-// ========== التسجيل ==========
+// ========== التسجيل (مع منع مستثمر ثانٍ) ==========
 async function register() {
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
     const address = document.getElementById('regAddress').value.trim();
-    const role = document.getElementById('regRole').value;
+    const roleSelect = document.getElementById('regRole');
+    const role = roleSelect.value;
     if (!email || !password) return alert('يرجى ملء البريد وكلمة المرور');
     if (role === 'customer' && !address) return alert('يرجى إدخال العنوان للزبائن');
+
+    // إذا كان الدور مستثمر، تأكد من عدم وجود مستثمر آخر
+    if (role === 'investor') {
+        const existingSnapshot = await db.collection('users').where('role', '==', 'investor').limit(1).get();
+        if (!existingSnapshot.empty) {
+            alert('يوجد مستثمر بالفعل في المنصة. لا يمكن إنشاء حساب مستثمر آخر.');
+            return;
+        }
+    }
+
     try {
         const cred = await auth.createUserWithEmailAndPassword(email, password);
         const userData = { email, role, displayName: email.split('@')[0], createdAt: firebase.firestore.FieldValue.serverTimestamp() };
@@ -68,6 +100,12 @@ async function register() {
         if (role === 'investor') userData.barcodeImage = '';
         await db.collection('users').doc(cred.user.uid).set(userData);
         alert('تم إنشاء الحساب بنجاح');
+
+        // إذا كان المستخدم الجديد مستثمراً، أخفي الخيار فوراً لبقية الزوار
+        if (role === 'investor') {
+            await checkInvestorExists();
+        }
+        // أعِد التوجيه للوحة التحكم (سيحدث تلقائياً عبر onAuthStateChanged)
     } catch (e) { alert('خطأ: ' + e.message); }
 }
 
@@ -191,13 +229,11 @@ async function loadInvestorOrders() {
     const div = document.getElementById('investorOrders');
     if (!div) return;
     div.innerHTML = 'جاري التحميل...';
-    // بفضل investorIds يمكننا جلب الطلبات مباشرة
     const snap = await db.collection('orders').where('investorIds', 'array-contains', currentUser.uid).orderBy('createdAt','desc').limit(30).get();
     if (snap.empty) { div.innerHTML = '<p>لا طلبات.</p>'; return; }
     let html = '';
     snap.forEach(doc => {
         const order = doc.data();
-        // عرض كل العناصر لأن الطلب يحتوي منتجات هذا المستثمر بالضبط
         const investorInfo = order.investorsDetails?.find(inv => inv.investorId === currentUser.uid);
         const itemsText = investorInfo ? investorInfo.items.map(i=>`${i.title} (${i.quantity})`).join(', ') : '';
         const subtotal = investorInfo ? investorInfo.subtotal : 0;
@@ -313,7 +349,6 @@ async function initiateCheckout() {
 
 function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
 
-// تأكيد الطلب ثم فتح نافذة mailto
 document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
     if (!currentCheckoutData) return;
 
@@ -348,7 +383,7 @@ document.getElementById('confirmPaymentBtn').addEventListener('click', async () 
         address: currentCheckoutData.address,
         items: orderItems,
         total: total,
-        investorIds: currentCheckoutData.investorMap.map(inv => inv.id), // الحقل المهم للقواعد
+        investorIds: currentCheckoutData.investorMap.map(inv => inv.id),
         investorsDetails: currentCheckoutData.investorMap.map((inv, idx) => ({
             investorId: inv.id,
             email: inv.email,
@@ -365,7 +400,6 @@ document.getElementById('confirmPaymentBtn').addEventListener('click', async () 
         await batch.commit();
         closePaymentModal();
 
-        // بناء رابط mailto
         const investorEmails = [...new Set(currentCheckoutData.investorMap.map(i => i.email))].join(',');
         const subject = `طلب جديد #${orderRef.id.slice(0,6)} من ${currentUser.email}`;
         let body = `تفاصيل الطلب:\n`;

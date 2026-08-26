@@ -32,10 +32,61 @@ a { color: #2563eb; text-decoration: none; cursor: pointer; } a:hover { text-dec
 .post-type.request { background: #fee2e2; color: #991b1b; }
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal.hidden { display: none; }
-.modal-content { background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%; position: relative; text-align: right; }
+.modal-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; text-align: right; }
 .modal-content h2 { text-align: center; color: #1e3a5f; margin-bottom: 20px; }
 .close { position: absolute; left: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #666; }
 .payment-method { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
 .payment-method label { margin-right: 8px; font-weight: bold; }
 .barcode-img { max-width: 200px; margin-top: 10px; display: block; }
-@media (max-width: 600px) { .product-grid { grid-template-columns: 1fr 1fr; } nav a { margin: 0 4px; font-size: 13px; } }
+
+/* شريط الفئات */
+.categories-bar {
+    background: #fff;
+    padding: 8px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.category-btn {
+    background: #f3f4f6;
+    color: #1f2937;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+.category-btn:hover { background: #e5e7eb; }
+.category-btn.active { background: #2563eb; color: white; }
+.design-category { background:#8e44ad; color:white; }
+.design-category.active { background:#6c3483; }
+
+/* واجهة التصميم */
+.design-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
+.design-interface { display: flex; flex-direction: column; align-items: center; }
+.shirt-preview { position: relative; width: 300px; height: 350px; background: #fff; border: 2px dashed #ccc; border-radius: 10px; overflow: hidden; }
+.shirt-preview img.sticker-on-shirt { position: absolute; cursor: move; width: 50px; height: 50px; user-select: none; }
+.shirt-preview img.sticker-on-shirt.selected { outline: 2px solid red; }
+.sticker-gallery { display: flex; flex-wrap: wrap; gap: 10px; max-width: 300px; margin-top: 10px; }
+.sticker-item { width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; padding: 5px; background: white; }
+.sticker-item img { width: 100%; height: 100%; object-fit: contain; }
+.color-picker { margin: 10px 0; display: flex; gap: 10px; }
+.color-swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+.color-swatch.selected { border-color: #000; }
+.design-actions { margin-top: 15px; display: flex; gap: 10px; }
+.investor-sticker-upload { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+.custom-price-input { max-width: 120px; display: inline-block; margin-right: 10px; }
+
+@media (max-width: 600px) {
+    .product-grid { grid-template-columns: 1fr 1fr; }
+    nav a { margin: 0 4px; font-size: 13px; }
+    .category-btn { font-size: 12px; padding: 4px 8px; }
+    .shirt-preview { width: 250px; height: 300px; }
+}

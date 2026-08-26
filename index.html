@@ -63,6 +63,7 @@
     </div>
 
     <div class="container" id="appContent">
+        <!-- تسجيل الدخول -->
         <div id="loginPage" class="page hidden">
             <h2>تسجيل الدخول</h2>
             <input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
@@ -71,10 +72,12 @@
             <p>ليس لديك حساب؟ <a onclick="navigateTo('register')">إنشاء حساب</a></p>
         </div>
 
+        <!-- إنشاء حساب -->
         <div id="registerPage" class="page hidden">
             <h2>إنشاء حساب جديد</h2>
             <input type="email" id="regEmail" placeholder="البريد الإلكتروني">
             <input type="password" id="regPassword" placeholder="كلمة المرور">
+            <input type="text" id="regUsername" placeholder="اسم مستعار (اسم المستخدم)">
             <input type="text" id="regAddress" placeholder="العنوان (المدينة، الحي، الشارع)">
             <select id="regRole">
                 <option value="customer">زبون</option>
@@ -84,16 +87,19 @@
             <p>لديك حساب؟ <a onclick="navigateTo('login')">تسجيل الدخول</a></p>
         </div>
 
+        <!-- الرئيسية - منشورات -->
         <div id="homePage" class="page" style="max-width: 700px;">
             <h2>آخر المنشورات</h2>
             <div id="publicPosts"></div>
         </div>
 
+        <!-- لوحة التحكم -->
         <div id="dashboardPage" class="page hidden" style="max-width: 1000px;">
             <h2 id="dashboardTitle">لوحة التحكم</h2>
             <div id="dashboardContent"></div>
         </div>
 
+        <!-- نافذة الدفع -->
         <div id="paymentModal" class="modal hidden">
             <div class="modal-content">
                 <span class="close" onclick="closePaymentModal()">&times;</span>
@@ -103,6 +109,7 @@
             </div>
         </div>
 
+        <!-- نافذة البريد -->
         <div id="emailModal" class="modal hidden">
             <div class="modal-content">
                 <span class="close" onclick="closeEmailModal()">&times;</span>

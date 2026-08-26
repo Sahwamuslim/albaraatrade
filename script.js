@@ -5,8 +5,8 @@ let currentCheckoutData = null;
 let currentCategory = 'all';
 let selectedColor = '#ffffff';
 let selectedStickerUrl = '';
-let placedStickers = []; // عناصر التصميم الحالية
-let customDesignPrice = 0; // سعر الكنزة المخصصة
+let placedStickers = [];
+let customDesignPrice = 0;
 
 // ========== التحقق من وجود مستثمر ==========
 async function checkInvestorExists() {
@@ -18,6 +18,12 @@ async function checkInvestorExists() {
     } else {
         select.innerHTML = '<option value="customer">زبون</option><option value="investor">مستثمر</option>';
     }
+}
+
+// ========== التحقق من عدم تكرار اسم المستخدم ==========
+async function isUsernameTaken(username) {
+    const snapshot = await db.collection('users').where('username', '==', username).limit(1).get();
+    return !snapshot.empty;
 }
 
 // ========== التنقل ==========
@@ -91,9 +97,12 @@ async function loadPublicPosts() {
 async function register() {
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
+    const username = document.getElementById('regUsername').value.trim();
     const address = document.getElementById('regAddress').value.trim();
     const role = document.getElementById('regRole').value;
-    if (!email || !password) return alert('يرجى ملء البريد وكلمة المرور');
+
+    if (!email || !password || !username) return alert('يرجى ملء البريد وكلمة المرور واسم المستخدم');
+    if (username.length < 3) return alert('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
     if (role === 'customer' && !address) return alert('يرجى إدخال العنوان للزبائن');
     if (role === 'investor') {
         const existingSnapshot = await db.collection('users').where('role', '==', 'investor').limit(1).get();
@@ -102,9 +111,23 @@ async function register() {
             return;
         }
     }
+
+    // التحقق من عدم تكرار اسم المستخدم
+    const usernameTaken = await isUsernameTaken(username);
+    if (usernameTaken) {
+        alert('اسم المستخدم مأخوذ بالفعل، اختر اسماً آخر.');
+        return;
+    }
+
     try {
         const cred = await auth.createUserWithEmailAndPassword(email, password);
-        const userData = { email, role, displayName: email.split('@')[0], createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+        const userData = {
+            email,
+            role,
+            username,
+            displayName: username,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
         if (role === 'customer') userData.address = address;
         if (role === 'investor') userData.barcodeImage = '';
         await db.collection('users').doc(cred.user.uid).set(userData);
@@ -328,7 +351,6 @@ async function loadAllProducts() {
     div.innerHTML = 'جاري التحميل...';
 
     if (currentCategory === 'design') {
-        // عرض واجهة التصميم
         div.innerHTML = `
             <div class="design-interface">
                 <h3>تصميم كنزة مخصصة</h3>
@@ -339,7 +361,6 @@ async function loadAllProducts() {
                 </div>
                 <label>سعر الكنزة: <input type="number" id="customDesignPrice" class="custom-price-input" placeholder="السعر" min="0" value="${customDesignPrice || 0}"></label>
                 <div class="shirt-preview" id="shirtPreview" style="background:${selectedColor};">
-                    <!-- الملصقات ستوضع هنا -->
                 </div>
                 <div class="sticker-gallery" id="designStickers"></div>
                 <div class="design-actions">
@@ -349,11 +370,9 @@ async function loadAllProducts() {
             </div>
         `;
         loadDesignStickers();
-        // إعادة رسم الملصقات المحفوظة
         placedStickers.forEach(sticker => {
             addStickerElement(sticker.url, sticker.x, sticker.y);
         });
-        // ربط تغيير السعر
         document.getElementById('customDesignPrice').addEventListener('input', (e) => {
             customDesignPrice = parseFloat(e.target.value) || 0;
         });
@@ -433,7 +452,6 @@ function addStickerElement(url, x, y) {
     img.style.left = x + 'px';
     img.style.top = y + 'px';
     img.draggable = true;
-    // السحب والإفلات
     img.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', '');
     });
@@ -442,7 +460,6 @@ function addStickerElement(url, x, y) {
         img.style.left = (e.clientX - rect.left - 25) + 'px';
         img.style.top = (e.clientY - rect.top - 25) + 'px';
     });
-    // تحديد الملصق عند النقر
     img.addEventListener('click', (e) => {
         e.stopPropagation();
         document.querySelectorAll('.sticker-on-shirt').forEach(el => el.classList.remove('selected'));
@@ -469,7 +486,6 @@ async function addDesignToCart() {
     const uploadTask = await storageRef.putString(imageDataUrl, 'data_url');
     const designImageUrl = await uploadTask.ref.getDownloadURL();
 
-    // إضافة إلى السلة
     const cartRef = db.collection('users').doc(currentUser.uid).collection('cart').doc('custom_design');
     await cartRef.set({
         productId: 'custom_design',
@@ -477,7 +493,7 @@ async function addDesignToCart() {
         price: customDesignPrice,
         imageUrl: designImageUrl,
         quantity: 1,
-        investorId: null, // سيتم تعيينه عند الخروج
+        investorId: null,
         category: 'design',
         isCustomDesign: true
     });
@@ -530,7 +546,6 @@ async function initiateCheckout() {
     for (const doc of cartSnapshot.docs) {
         const item = doc.data();
         if (item.isCustomDesign) {
-            // التصميم المخصص يذهب للمستثمر الوحيد
             const investorSnapshot = await db.collection('users').where('role', '==', 'investor').limit(1).get();
             if (!investorSnapshot.empty) {
                 const invData = investorSnapshot.docs[0].data();

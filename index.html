@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البراء للتجارة المحلية – منصة تجارة إلكترونية للمستثمرين والعملاء</title>
-    <meta name="description" content="منصة البراء للتجارة المحلية تجمع بين المستثمرين والزبائن، يمكنك نشر عروضك، تصفح المنتجات، وإتمام الشراء بسهولة مع خيار الدفع عند الاستلام أو عبر شام كاش.">
-    <meta name="keywords" content="تجارة, محلية, مستثمر, زبون, شام كاش, سوريا, منتجات, شراء, بيع">
-    <meta name="author" content="البراء للتجارة المحلية">
+    <title>tek rek – منصة تجارة إلكترونية</title>
+    <meta name="description" content="منصة tek rek للتجارة الإلكترونية المحلية. تصفح المنتجات، انشر عروضك وطلباتك، وأتمم الشراء بسهولة مع خيار الدفع عند الاستلام أو عبر شام كاش.">
+    <meta name="keywords" content="tek rek, تجارة, محلية, مستثمر, زبون, شام كاش, سوريا, منتجات, شراء, بيع">
+    <meta name="author" content="tek rek">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="البراء للتجارة المحلية">
+    <meta property="og:title" content="tek rek">
     <meta property="og:description" content="منصة تجارة إلكترونية محلية، تعرض منتجات المستثمرين وتتيح للزبائن الطلب بسهولة.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://YOUR_USERNAME.github.io/albaraa-trade">
     <meta property="og:image" content="https://YOUR_USERNAME.github.io/albaraa-trade/og-image.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="البراء للتجارة المحلية">
+    <meta name="twitter:title" content="tek rek">
     <meta name="twitter:description" content="منصة تجارة إلكترونية محلية، تعرض منتجات المستثمرين وتتيح للزبائن الطلب بسهولة.">
     <meta name="twitter:image" content="https://YOUR_USERNAME.github.io/albaraa-trade/og-image.jpg">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -28,20 +28,20 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "البراء للتجارة المحلية",
-      "url": "https://YOUR_USERNAME.github.io/albaraa-trade",
-      "description": "منصة تجارة إلكترونية محلية تجمع بين المستثمرين والزبائن.",
+      "name": "tek rek",
+      "url": "https://sahwamuslim.github.io/albaraa-trade",
+      "description": "منصة تجارة إلكترونية سورية.",
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer service",
-        "email": "support@albaraa-trade.com"
+        "email": "support@tekrek.com"
       }
     }
     </script>
 </head>
 <body>
     <nav id="mainNav">
-        <span class="logo">البراء للتجارة المحلية</span>
+        <span class="logo">tek rek</span>
         <div id="navLinks">
             <a onclick="navigateTo('home')">الرئيسية</a>
             <a id="loginLink" onclick="navigateTo('login')">تسجيل الدخول</a>
@@ -63,7 +63,6 @@
     </div>
 
     <div class="container" id="appContent">
-        <!-- تسجيل الدخول -->
         <div id="loginPage" class="page hidden">
             <h2>تسجيل الدخول</h2>
             <input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
@@ -72,7 +71,6 @@
             <p>ليس لديك حساب؟ <a onclick="navigateTo('register')">إنشاء حساب</a></p>
         </div>
 
-        <!-- إنشاء حساب -->
         <div id="registerPage" class="page hidden">
             <h2>إنشاء حساب جديد</h2>
             <input type="email" id="regEmail" placeholder="البريد الإلكتروني">
@@ -87,19 +85,16 @@
             <p>لديك حساب؟ <a onclick="navigateTo('login')">تسجيل الدخول</a></p>
         </div>
 
-        <!-- الرئيسية - منشورات -->
         <div id="homePage" class="page" style="max-width: 700px;">
-            <h2>آخر المنشورات</h2>
+            <h2>tek rek</h2>
             <div id="publicPosts"></div>
         </div>
 
-        <!-- لوحة التحكم -->
         <div id="dashboardPage" class="page hidden" style="max-width: 1000px;">
             <h2 id="dashboardTitle">لوحة التحكم</h2>
             <div id="dashboardContent"></div>
         </div>
 
-        <!-- نافذة الدفع -->
         <div id="paymentModal" class="modal hidden">
             <div class="modal-content">
                 <span class="close" onclick="closePaymentModal()">&times;</span>
@@ -109,7 +104,6 @@
             </div>
         </div>
 
-        <!-- نافذة البريد -->
         <div id="emailModal" class="modal hidden">
             <div class="modal-content">
                 <span class="close" onclick="closeEmailModal()">&times;</span>
